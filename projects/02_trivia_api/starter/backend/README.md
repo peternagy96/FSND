@@ -72,9 +72,14 @@ This README is missing documentation of your endpoints. Below is an example for 
 
 Endpoints
 GET '/categories'
-GET ...
-POST ...
-DELETE ...
+GET '/questions'
+GET '/categories/<int:cat_id>/questions'
+POST '/questions'
+POST '/questions/search'
+POST '/quizzes'
+DELETE '/questions/<int:question_id>'
+
+
 
 GET '/categories'
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
@@ -86,6 +91,56 @@ GET '/categories'
 '4' : "History",
 '5' : "Entertainment",
 '6' : "Sports"}
+
+
+GET '/questions'
+- Fetches a page of questions, from all questions stored in the database
+- Request Arguments: 
+        - {page}: page number of the questions to display
+- Returns: An object with all possible categories, the questions to display, the total number of questions and the currently displayed category , if applicable, as keys.
+
+GET '/categories/<int:cat_id/questions>'
+- Fetches a page of questions from a single category
+- Request Arguments: 
+        - {cat_id}: The ID of the category to display questions from.
+- Returns: An object with the questions to be displayed, the number of total questions and the currently displayed category as keys.
+
+
+POST '/questions'
+- Adds a question to the database
+- Request Arguments: 
+        - {question}: Question as a string
+        - {answer}: Answer to the question as a string
+        - {difficulty}: Difficulty of the question as an int
+        - {category}: Category of the question as a string
+- Returns: None
+
+
+POST '/questions/search'
+- Fetches questions from the database given a text query
+- Request Arguments:
+        - {page_num}: Page number of the questions to display
+        - {search_query}: search query as a string
+- Returns: Object with questions as a list and the total number of questions as an int. 
+
+
+POST '/quizzes'
+- Fetches a new question for a trivia game until a given category is exhausted and all the questions have been answered during the game
+- Request Arguments: 
+        - {quiz_category}: category to fetch the questions from
+        - {prev_questions}: ID-s of questions that were already answered during the current game
+- Returns: An Object with a single question.
+
+
+DELETE '/questions/<int:question_id>'
+- Deletes a question from the database
+- Request Arguments: 
+        - {question_id}: ID of the question to be deleted
+- Returns: None
+
+
+
+
 
 ```
 
