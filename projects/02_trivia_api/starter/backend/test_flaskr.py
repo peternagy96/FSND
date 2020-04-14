@@ -44,6 +44,12 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+    def test_delete_q(self):
+        questions = Question.query.all()
+        response = self.client().delete(f"/questions/{10000000}")
+        self.assertEqual(response.status_code, 404)
+
+
     def test_add_new_q(self):
         question = {
             'question': 'Test?',
@@ -56,6 +62,18 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+    def test_add_new_q_wrong_cat(self):
+        question = {
+            'question': 'Test?',
+            'answer': 'Test.', 'category': '100', 'difficulty': '1'
+        }
+        headers  = {'Content-type': 'application/json'}
+        response = self.client().post('/questions',
+                                 data=json.dumps(question),
+                                 headers=headers)
+        self.assertEqual(response.status_code, 404)
+
+
     def test_search_q(self):
         search_term = {"searchTerm": "title"}
         headers  = {'Content-type': 'application/json'}
@@ -64,10 +82,23 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_search_without_text(self):
+        search_term = {"searchTerm": ""}
+        headers  = {'Content-type': 'application/json'}
+        response = self.client().post("/questions/search", json=search_term)
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 404)
+
 
     def test_q_based_on_cat(self):
         response = self.client().get('/categories/1/questions')
         self.assertEqual(response.status_code, 200)
+
+
+    def test_q_with_wrong_cat(self):
+        response = self.client().get('/categories/100/questions')
+        self.assertEqual(response.status_code, 404)
 
 
     def test_trivia_game(self):
@@ -76,6 +107,22 @@ class TriviaTestCase(unittest.TestCase):
         response = self.client().post("/quizzes", json=quiz_data)
         data = json.loads(response.data)
         self.assertEqual(response.status_code, 200)
+
+    
+    def test_trivia_without_cat(self):
+        category = {'id': 0}
+        quiz_data = {"previous_questions": [], "quiz_category": category}
+        response = self.client().post("/quizzes", json=quiz_data)
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_trivia_with_wrong_cat(self):
+        category = {'id': 100}
+        quiz_data = {"previous_questions": [], "quiz_category": category}
+        response = self.client().post("/quizzes", json=quiz_data)
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 404)
     
 
 
