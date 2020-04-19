@@ -9,52 +9,52 @@ AUTH0_DOMAIN = 'dev-coffeeshop.auth0.com'
 ALGORITHMS = ['RS256']
 API_AUDIENCE = 'coffee'
 
-## AuthError Exception
+
+# AuthError Exception
 class AuthError(Exception):
     def __init__(self, error, status_code):
         self.error = error
         self.status_code = status_code
 
 
-
-## Auth Header
+# Auth Header
 def get_token_auth_header():
-    auth_header = request.headers.get('authorization','None')
+    auth_header = request.headers.get('authorization', 'None')
     token = None
     if not auth_header:
         raise AuthError({
             'description': 'No Authorization header supplied',
-            'code':'UNAUTHORIZED'    
-        },401)
+            'code': 'UNAUTHORIZED'
+        }, 401)
     parts = auth_header.split()
-    #0 is the auth type, 1 is the token
+    # 0 is the auth type, 1 is the token
     if parts[0].lower() != 'bearer':
         raise AuthError({
             'description': 'Authorization method must be Bearer',
-            'code':'INVALID_AUTH_METHOD'    
-        },401)
-    if len(parts)>1 and None != parts[1]:
+            'code': 'INVALID_AUTH_METHOD'
+        }, 401)
+    if len(parts) > 1 and parts[1] is not None:
         token = parts[1]
-    
+
     return token
 
 
 def check_permissions(permission, payload):
     if 'permissions' not in payload:
         raise AuthError({
-            'code':'INVALID_CLAIMS',
-            'description':'No permissions in JWT token'
-            },400)
+            'code': 'INVALID_CLAIMS',
+            'description': 'No permissions in JWT token'
+            }, 400)
     if permission not in payload['permissions']:
         raise AuthError({
-            'code':'FORBIDDEN',
-            'description': f'User does not have permission for this operation. Required: ${permission}'
-            },401)
+            'code': 'FORBIDDEN',
+            'description': f'User does not have permission for \
+                             this operation. Required: ${permission}'
+            }, 401)
     return True
 
 
 def verify_decode_jwt(token):
-    
     jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
     jwks = json.loads(jsonurl.read())
     unverified_header = jwt.get_unverified_header(token)
@@ -95,7 +95,8 @@ def verify_decode_jwt(token):
         except jwt.JWTClaimsError:
             raise AuthError({
                 'code': 'INVALID_CLAIMS',
-                'description': 'Incorrect claims. Please, check the audience and issuer.'
+                'description': 'Incorrect claims. Please, \
+                                check the audience and issuer.'
             }, 401)
         except Exception:
             raise AuthError({
@@ -113,9 +114,9 @@ def requires_auth(permission=''):
         @wraps(f)
         def wrapper(*args, **kwargs):
             token = get_token_auth_header()
-            try: 
+            try:
                 payload = verify_decode_jwt(token)
-            except:
+            except Exception:
                 abort(401)
             check_permissions(permission, payload)
             return f(payload, *args, **kwargs)
