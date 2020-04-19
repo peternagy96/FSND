@@ -11,7 +11,7 @@ app = Flask(__name__)
 setup_db(app)
 CORS(app)
 
-# db_drop_and_create_all()
+db_drop_and_create_all()
 
 # ROUTES
 @app.route('/drinks')
@@ -34,12 +34,14 @@ def get_drinks():
 def show_drinks_detail(jwt):
     try:
         drinks = [drink.long() for drink in Drink.query.all()]
+        # if len(drinks) == 0:
+        #     abort(404)
         return jsonify({
             'success': True,
             'drinks': drinks
         })
-    except Exception:
-        abort(404)
+    except AuthError:
+        abort(401)
 
 
 @app.route('/drinks', methods=['POST'])
@@ -71,19 +73,20 @@ def patch_drinks_details(token, drink_id):
 
         if not title or not recipe:
             abort(422)
-
         drink = Drink.query.filter(Drink.id == drink_id).one_or_none()
 
         if not drink:
             abort(400)
 
-        drink.title = title
-        drink.recipe = recipe
+        if title:
+            drink.title = title
+        if recipe:
+            drink.recipe = recipe
         drink.update()
 
         return jsonify({
             "success": True,
-            "drinks": drink.long()
+            "drinks": [drink.long()]
         })
     except Exception:
         abort(422)
