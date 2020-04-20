@@ -4,8 +4,8 @@ from sqlalchemy import exc
 import json
 from flask_cors import CORS
 
-from .database.models import db_drop_and_create_all, setup_db, Track, Playlist, Publication
-from .auth.auth import AuthError, requires_auth
+from src.database.models import db_drop_and_create_all, setup_db, Track, Playlist, Publication
+from src.auth.auth import AuthError, requires_auth
 
 
 app = Flask(__name__)
